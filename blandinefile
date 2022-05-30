@@ -1,5 +1,7 @@
 pipeline {
-    agent any
+    agent { 
+        label 'main'
+         }
    
    environment {
 		DOCKERHUB_CREDENTIALS=credentials('dockerhub')
@@ -23,14 +25,38 @@ pipeline {
                                 defaultValue: '001', 
                                 name: 'ImageTAG', 
                                 trim: true
-                            )
+                            ),
+
+                            string(name: 'WARNTIME',
+                             defaultValue: '2',
+                            description: '''Warning time (in minutes) before starting upgrade'''),
+
+                             
+                         
+                          string(
+                                defaultValue: 'develop',
+                                name: 'Please_leave_this_section_as_it_is',
+                                trim: true
+                            ),
                         ])
                     ])
                 }
             }
         }
 
+     
 
+     //////////////////////////////////
+       stage('warning') {
+      steps {
+        script {
+            notifyUpgrade(currentBuild.currentResult, "WARNING")
+            sleep(time:env.WARNTIME, unit:"MINUTES")
+        }
+      }
+    }
+
+        
 
 
         stage('clean') {
@@ -40,7 +66,9 @@ pipeline {
 
             steps {
                sh '''
-               rm -rf webapp/target/webapp.war || true
+	       rm -rf webapp.war
+               rm -rf webapp/target/
+	      ls -l webapp
               mvn clean
                '''
             }
@@ -85,16 +113,13 @@ stage('test') {
         }
 
 stage('package') {
-    agent {
-                 docker { image 'maven:3.8.5-openjdk-8-slim' }
-             }
+
 
             steps {
                sh '''
-            
-              mvn package
-              ls -l webapp/target
-              pwd
+         mvn package
+	 ls -l webapp/
+	 ls -l webapp/target/
                '''
             }
         }
@@ -154,29 +179,3 @@ stage('build ') {
         }
        
 
-
-
-
-
-      stage('Docker Login') {
-
-			steps {
-				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
-
-           
-            
-
-     stage('Docker push ') {
-            steps {
-               sh '''
-              docker push devopseasylearning2021/blandine:$ImageTAG 
-                '''
-            }
-        }
-
-
-
-    }
-}
