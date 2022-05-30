@@ -224,6 +224,19 @@
             </div>
           </div>
         </div>
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" id="deleteDialog">Warning!</h4>
+          </div>
+          <div class="modal-body">
+            <h4>Are you sure, want to delete this vehicle? </h4>
+            <input type="hidden" id="deleted-member-id" value="">
+            <div class="modal-footer-extended">
+              <button class="btn btn-danger" onclick="deleteMemberData()">Delete</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
